@@ -11,6 +11,7 @@ import {
   Alert,
   Paper,
   Grid,
+  Divider,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
@@ -74,13 +75,11 @@ const EditProduct = () => {
   // 🔹 Validation
   const validate = () => {
     const newErrors = {};
-
     if (!form.name.trim()) newErrors.name = "Product name is required";
     if (!form.price || form.price <= 0) newErrors.price = "Valid price required";
     if (!form.countInStock) newErrors.countInStock = "Stock is required";
     if (!form.category) newErrors.category = "Category is required";
-    if (!form.description.trim())
-      newErrors.description = "Description is required";
+    if (!form.description.trim()) newErrors.description = "Description is required";
     if (existingImages.length + images.length === 0)
       newErrors.images = "At least 1 image required";
 
@@ -121,7 +120,6 @@ const EditProduct = () => {
     if (!validate()) return;
 
     const formData = new FormData();
-
     Object.keys(form).forEach((key) => formData.append(key, form[key]));
     images.forEach((img) => formData.append("images", img));
 
@@ -133,8 +131,6 @@ const EditProduct = () => {
       setLoading(true);
       await updateProduct(id, formData);
       navigate("/admin/products");
-    } catch (err) {
-      console.error("Update failed", err);
     } finally {
       setLoading(false);
     }
@@ -143,23 +139,31 @@ const EditProduct = () => {
   const totalImages = existingImages.length + images.length;
 
   return (
-    <Box display="flex" justifyContent="center" p={3}>
+    <Box display="flex" justifyContent="center" p={3} bgcolor="#f6f7f9" minHeight="100vh">
       <Paper
-        elevation={3}
+        elevation={0}
         sx={{
           width: "100%",
           maxWidth: 900,
           p: 4,
           borderRadius: 3,
-          backgroundColor: "#fff",
+          border: "1px solid #e5e7eb",
+          bgcolor: "#fff",
         }}
       >
-        <Typography variant="h5" fontWeight={600} mb={3}>
+        <Typography variant="h5" fontWeight={700} mb={3}>
           Edit Product
         </Typography>
 
         <Box component="form" onSubmit={handleSubmit}>
+          {/* ================= BASIC INFO ================= */}
+          <Typography fontWeight={600} mb={1}>
+            Basic Information
+          </Typography>
+          <Divider sx={{ mb: 2 }} />
+
           <Grid container spacing={2}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 label="Product Name"
                 name="name"
@@ -170,7 +174,9 @@ const EditProduct = () => {
                 error={!!errors.name}
                 helperText={errors.name}
               />
+            </Grid>
 
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 label="Price"
                 name="price"
@@ -182,7 +188,9 @@ const EditProduct = () => {
                 error={!!errors.price}
                 helperText={errors.price}
               />
+            </Grid>
 
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 label="Stock"
                 name="countInStock"
@@ -194,7 +202,9 @@ const EditProduct = () => {
                 error={!!errors.countInStock}
                 helperText={errors.countInStock}
               />
+            </Grid>
 
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 select
                 label="Category"
@@ -212,7 +222,9 @@ const EditProduct = () => {
                   </MenuItem>
                 ))}
               </TextField>
+            </Grid>
 
+            <Grid size={12}>
               <TextField
                 label="Description"
                 name="description"
@@ -226,104 +238,122 @@ const EditProduct = () => {
                 helperText={errors.description}
               />
             </Grid>
+          </Grid>
 
-          {/* Images */}
-          <Box mt={4}>
-            <Typography fontWeight={500} mb={1}>
-              Images (Max 5)
-            </Typography>
-            {errors.images && <Alert severity="error">{errors.images}</Alert>}
+          {/* ================= IMAGES ================= */}
+          <Typography mt={4} fontWeight={600}>
+            Product Images
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Upload up to 5 images
+          </Typography>
 
-            <Box display="flex" gap={2} flexWrap="wrap">
-              {existingImages.map((img) => (
-                <Box key={img} position="relative">
-                  <Box
-                    component="img"
-                    src={`${import.meta.env.VITE_ECOM_BASE_URL}/uploads/${img}`}
-                    sx={{
-                      width: 80,
-                      height: 80,
-                      objectFit: "cover",
-                      borderRadius: 2,
-                      border: "1px solid #ddd",
-                    }}
-                  />
-                  <IconButton
-                    size="small"
-                    onClick={() => removeExistingImage(img)}
-                    sx={{ position: "absolute", top: -8, right: -8 }}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              ))}
+          {errors.images && <Alert severity="error">{errors.images}</Alert>}
 
-              {images.map((file, index) => (
-                <Box key={index} position="relative">
-                  <Box
-                    component="img"
-                    src={URL.createObjectURL(file)}
-                    sx={{
-                      width: 80,
-                      height: 80,
-                      objectFit: "cover",
-                      borderRadius: 2,
-                      border: "1px solid #ddd",
-                    }}
-                  />
-                  <IconButton
-                    size="small"
-                    onClick={() => removeNewImage(index)}
-                    sx={{ position: "absolute", top: -8, right: -8 }}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              ))}
-
-              {totalImages < MAX_IMAGES && (
-                <Button
-                  component="label"
+          <Box display="flex" gap={2} flexWrap="wrap" mt={2}>
+            {existingImages.map((img) => (
+              <Box key={img} position="relative">
+                <Box
+                  component="img"
+                  src={`${import.meta.env.VITE_ECOM_BASE_URL}/uploads/${img}`}
                   sx={{
-                    width: 80,
-                    height: 80,
-                    border: "2px dashed #ccc",
+                    width: 100,
+                    height: 100,
+                    objectFit: "cover",
                     borderRadius: 2,
+                    border: "1px solid #e5e7eb",
+                  }}
+                />
+                <IconButton
+                  size="small"
+                  onClick={() => removeExistingImage(img)}
+                  sx={{
+                    position: "absolute",
+                    top: -10,
+                    right: -10,
+                    bgcolor: "#fff",
+                    border: "1px solid #eee",
                   }}
                 >
-                  <AddIcon />
-                  <input hidden multiple type="file" onChange={handleImageChange} />
-                </Button>
-              )}
-            </Box>
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Box>
+            ))}
+
+            {images.map((file, index) => (
+              <Box key={index} position="relative">
+                <Box
+                  component="img"
+                  src={URL.createObjectURL(file)}
+                  sx={{
+                    width: 100,
+                    height: 100,
+                    objectFit: "cover",
+                    borderRadius: 2,
+                    border: "1px solid #e5e7eb",
+                  }}
+                />
+                <IconButton
+                  size="small"
+                  onClick={() => removeNewImage(index)}
+                  sx={{
+                    position: "absolute",
+                    top: -10,
+                    right: -10,
+                    bgcolor: "#fff",
+                    border: "1px solid #eee",
+                  }}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Box>
+            ))}
+
+            {totalImages < MAX_IMAGES && (
+              <Button
+                component="label"
+                sx={{
+                  width: 100,
+                  height: 100,
+                  border: "2px dashed #d1d5db",
+                  borderRadius: 2,
+                  color: "#6b7280",
+                  "&:hover": { borderColor: "#000", color: "#000" },
+                }}
+              >
+                <AddIcon />
+                <input hidden multiple type="file" onChange={handleImageChange} />
+              </Button>
+            )}
           </Box>
 
-          {/* Flags */}
-          <Box mt={3}>
+          {/* ================= FLAGS ================= */}
+          <Box mt={4}>
+            <Typography fontWeight={600}>Options</Typography>
             <FormControlLabel
-              control={
-                <Checkbox
-                  checked={form.isFeatured}
-                  onChange={handleChange}
-                  name="isFeatured"
-                />
-              }
-              label="Featured"
+              control={<Checkbox checked={form.isFeatured} onChange={handleChange} name="isFeatured" />}
+              label="Featured Product"
             />
             <FormControlLabel
-              control={
-                <Checkbox
-                  checked={form.isActive}
-                  onChange={handleChange}
-                  name="isActive"
-                />
-              }
+              control={<Checkbox checked={form.isActive} onChange={handleChange} name="isActive" />}
               label="Active"
             />
           </Box>
 
-          <Box mt={3}>
-            <Button type="submit" variant="contained" disabled={loading}>
+          {/* ================= ACTION ================= */}
+          <Box mt={4}>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={loading}
+              sx={{
+                bgcolor: "#111",
+                "&:hover": { bgcolor: "#000" },
+                px: 4,
+                py: 1.2,
+                fontWeight: 600,
+              }}
+            >
               {loading ? "Saving..." : "Update Product"}
             </Button>
           </Box>

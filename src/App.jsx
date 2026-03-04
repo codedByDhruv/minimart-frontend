@@ -24,24 +24,56 @@ import AdminRoutes from "./routes/AdminRoutes";
 import CategoryList from "./pages/admin/CategoryList";
 import CreateProduct from "./pages/admin/CreateProduct";
 import EditProduct from "./pages/admin/EditProduct";
+import UserRoutes from "./routes/UserRoutes";
+import { Toaster } from "react-hot-toast";
+import Profile from "./pages/user/Profile";
+import ForgotPassword from "./pages/user/ForgotPassword";
+import ResetPassword from "./pages/user/ResetPassword";
 
 const App = ({ mode, setMode }) => {
   return (
+    <>
+    <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: "#111",
+            color: "#fff",
+            borderRadius: "12px",
+            fontSize: "14px",
+          },
+        }}
+      />
     <BrowserRouter>
       <Routes>
 
         {/* 🔐 Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        
         {/* 🛍️ User Website */}
         <Route path="/" element={<UserLayout />}>
           <Route index element={<Home />} />
           <Route path="products" element={<Products />} />
-          <Route path="product/:id" element={<ProductDetails />} />
-          <Route path="cart" element={<Cart />} />
-          <Route path="wishlist" element={<Wishlist />} />
-          <Route path="orders" element={<Orders />} />
+          <Route path="products/:id" element={<ProductDetails />} />
+          <Route path="cart" element={
+            <UserRoutes>
+              <Cart />
+            </UserRoutes>} />
+          <Route path="wishlist" element={
+            <UserRoutes>
+              <Wishlist />
+            </UserRoutes>} />
+          <Route path="orders" element={
+            <UserRoutes>
+              <Orders />
+            </UserRoutes>} />
+          <Route path="profile" element={
+            <UserRoutes>
+              <Profile />
+            </UserRoutes>} />
         </Route>
 
         {/* 🔒 Admin Login */}
@@ -67,6 +99,7 @@ const App = ({ mode, setMode }) => {
 
       </Routes>
     </BrowserRouter>
+    </>
   );
 };
 

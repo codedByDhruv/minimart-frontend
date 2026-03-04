@@ -16,8 +16,9 @@ import {
   Avatar,
   Divider,
   IconButton,
+  Paper,
 } from "@mui/material";
-import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { useEffect, useState } from "react";
 import {
   getOrders,
@@ -66,8 +67,6 @@ const OrderList = () => {
       }));
 
       setRows(mapped);
-    } catch (err) {
-      console.error("Failed to fetch orders", err);
     } finally {
       setLoading(false);
     }
@@ -118,6 +117,9 @@ const OrderList = () => {
       field: "amount",
       headerName: "Amount (₹)",
       flex: 1,
+      renderCell: (params) => (
+        <Typography fontWeight={600}>₹{params.value}</Typography>
+      ),
     },
 
     {
@@ -127,8 +129,12 @@ const OrderList = () => {
       renderCell: (params) => (
         <Chip
           label={params.value}
-          color={params.value === "Paid" ? "success" : "warning"}
           size="small"
+          sx={{
+            bgcolor: params.value === "Paid" ? "#ecfdf5" : "#fff7ed",
+            color: params.value === "Paid" ? "#047857" : "#c2410c",
+            fontWeight: 600,
+          }}
         />
       ),
     },
@@ -149,8 +155,13 @@ const OrderList = () => {
               handleStatusChange(params.row.id, e.target.value)
             }
             sx={{
-              backgroundColor: isCancelled ? "#FEE2E2" : "transparent",
-              color: isCancelled ? "#991B1B" : "inherit",
+              minWidth: 140,
+              bgcolor: isCancelled ? "#fef2f2" : "#f9fafb",
+              color: isCancelled ? "#b91c1c" : "#111",
+              fontWeight: 500,
+              "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#e5e7eb",
+              },
             }}
           >
             {allowedStatuses.map((s) => (
@@ -173,20 +184,30 @@ const OrderList = () => {
           variant="outlined"
           disabled={params.row.status === "Cancelled"}
           onClick={() => openTrackingDialog(params.row)}
+          sx={{
+            borderColor: "#111",
+            color: "#111",
+            "&:hover": { bgcolor: "#f3f4f6", borderColor: "#111" },
+          }}
         >
           {params.row.trackingNumber ? "Update" : "Add"}
         </Button>
       ),
     },
 
-    /* 🆕 VIEW DETAILS */
     {
       field: "view",
       headerName: "View",
       width: 80,
       renderCell: (params) => (
-        <IconButton onClick={() => openDetails(params.row.id)}>
-          <VisibilityIcon />
+        <IconButton
+          onClick={() => openDetails(params.row.id)}
+          sx={{
+            color: "#374151",
+            "&:hover": { bgcolor: "#f3f4f6" },
+          }}
+        >
+          <VisibilityOutlinedIcon />
         </IconButton>
       ),
     },
@@ -194,17 +215,47 @@ const OrderList = () => {
 
   return (
     <Box>
-      <Typography variant="h5" mb={2}>
+      <Typography variant="h5" fontWeight={700} mb={2}>
         Orders
       </Typography>
 
-      {loading ? (
-        <CircularProgress />
-      ) : (
-        <Box sx={{ height: 520 }}>
-          <DataGrid rows={rows} columns={columns} disableRowSelectionOnClick getRowHeight={() => 72} />
-        </Box>
-      )}
+      {/* TABLE */}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 3,
+          border: "1px solid #e5e7eb",
+          overflow: "hidden",
+        }}
+      >
+        {loading ? (
+          <Box p={3}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Box sx={{ height: 520 }}>
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              disableRowSelectionOnClick
+              getRowHeight={() => 72}
+              sx={{
+                border: 0,
+                "& .MuiDataGrid-columnHeaders": {
+                  bgcolor: "#f9fafb",
+                  fontWeight: 600,
+                },
+                "& .MuiDataGrid-row:hover": {
+                  bgcolor: "#f9fafb",
+                },
+                "& .MuiDataGrid-footerContainer": {
+                  borderTop: "1px solid #eee",
+                },
+              }}
+            />
+          </Box>
+        )}
+      </Paper>
 
       {/* ================= TRACKING MODAL ================= */}
       <Dialog open={trackingDialog} onClose={() => setTrackingDialog(false)}>
@@ -238,8 +289,17 @@ const OrderList = () => {
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setTrackingDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleTrackingSave}>
+          <Button
+            onClick={() => setTrackingDialog(false)}
+            sx={{ color: "#374151" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleTrackingSave}
+            sx={{ bgcolor: "#111", "&:hover": { bgcolor: "#000" } }}
+          >
             Save
           </Button>
         </DialogActions>
@@ -279,12 +339,19 @@ const OrderList = () => {
               <Divider sx={{ my: 2 }} />
 
               <Typography>Items Price: ₹{selectedOrder.itemsPrice}</Typography>
-              <Typography>Total: ₹{selectedOrder.totalPrice}</Typography>
+              <Typography fontWeight={700}>
+                Total: ₹{selectedOrder.totalPrice}
+              </Typography>
             </Box>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDetailsDialog(false)}>Close</Button>
+          <Button
+            onClick={() => setDetailsDialog(false)}
+            sx={{ color: "#374151" }}
+          >
+            Close
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

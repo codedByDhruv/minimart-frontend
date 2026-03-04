@@ -6,7 +6,7 @@
     <!-- Viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- App Title -->
+    <!-- Title -->
     <title>Minimart | Shop Smart, Live Better</title>
 
     <!-- SEO Meta -->
@@ -24,7 +24,7 @@
     <meta name="application-name" content="Minimart" />
     <meta name="theme-color" content="#0f172a" />
 
-    <!-- Open Graph (Social Sharing) -->
+    <!-- Open Graph (Facebook, LinkedIn) -->
     <meta property="og:title" content="Minimart | Shop Smart, Live Better" />
     <meta
       property="og:description"
@@ -32,19 +32,56 @@
     />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Minimart" />
+    <!-- Optional: Add when you have a banner image -->
+    <!-- <meta property="og:image" content="/og-image.png" /> -->
 
-    <!-- Fonts -->
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Minimart | Shop Smart, Live Better" />
+    <meta
+      name="twitter:description"
+      content="Shop top-quality products at unbeatable prices with Minimart."
+    />
+    <!-- <meta name="twitter:image" content="/og-image.png" /> -->
+
+    <!-- Google Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <!-- ================= Favicons ================= -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <!-- Android Chrome Icons -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="/android-chrome-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="/android-chrome-512x512.png"
+    />
+
+    <!-- Web App Manifest (PWA support) -->
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Prevent favicon cache issues -->
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
   </head>
 
   <body>
     <div id="root"></div>
+
+    <!-- Vite Entry -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -10,10 +10,13 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Paper,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
+
 import { useEffect, useState } from "react";
 import { getProducts, deleteProduct } from "../../services/admin/productService";
 import { useNavigate } from "react-router-dom";
@@ -22,12 +25,13 @@ const ProductList = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState(null);
+  const [pageSize, setPageSize] = useState(10);
+
   const navigate = useNavigate();
 
   const fetchProducts = async () => {
     try {
       const res = await getProducts();
-
       const mapped = res.products.map((p) => ({
         id: p._id,
         name: p.name,
@@ -37,7 +41,6 @@ const ProductList = () => {
         stock: p.countInStock,
         status: p.isActive ? "Active" : "Inactive",
       }));
-
       setRows(mapped);
     } catch (err) {
       console.error("Failed to fetch products", err);
@@ -65,6 +68,7 @@ const ProductList = () => {
       field: "image",
       headerName: "Image",
       width: 90,
+      sortable: false,
       renderCell: (params) =>
         params.value ? (
           <Box
@@ -72,8 +76,8 @@ const ProductList = () => {
             src={`${import.meta.env.VITE_ECOM_BASE_URL}/uploads/${params.value}`}
             alt="product"
             sx={{
-              width: 50,
-              height: 50,
+              width: 44,
+              height: 44,
               objectFit: "cover",
               borderRadius: 2,
               border: "1px solid #eee",
@@ -89,6 +93,7 @@ const ProductList = () => {
       field: "price",
       headerName: "Price (₹)",
       flex: 1,
+      renderCell: (params) => <Typography fontWeight={600}>₹{params.value}</Typography>,
     },
     {
       field: "stock",
@@ -97,8 +102,12 @@ const ProductList = () => {
       renderCell: (params) => (
         <Chip
           label={params.value}
-          color={params.value > 0 ? "success" : "error"}
           size="small"
+          sx={{
+            bgcolor: params.value > 0 ? "#ecfdf5" : "#fef2f2",
+            color: params.value > 0 ? "#047857" : "#b91c1c",
+            fontWeight: 600,
+          }}
         />
       ),
     },
@@ -109,28 +118,41 @@ const ProductList = () => {
       renderCell: (params) => (
         <Chip
           label={params.value}
-          color={params.value === "Active" ? "success" : "default"}
           size="small"
+          sx={{
+            bgcolor: params.value === "Active" ? "#ecfdf5" : "#f3f4f6",
+            color: params.value === "Active" ? "#047857" : "#374151",
+            fontWeight: 600,
+          }}
         />
       ),
     },
     {
       field: "actions",
       headerName: "Actions",
-      width: 120,
+      width: 110,
       sortable: false,
       renderCell: (params) => (
-        <>
+        <Box>
           <IconButton
-            color="primary"
             onClick={() => navigate(`/admin/products/edit/${params.row.id}`)}
+            sx={{
+              color: "#374151",
+              "&:hover": { bgcolor: "#f3f4f6" },
+            }}
           >
-            <EditIcon />
+            <EditOutlinedIcon />
           </IconButton>
-          <IconButton color="error" onClick={() => setDeleteId(params.row.id)}>
-            <DeleteIcon />
+          <IconButton
+            onClick={() => setDeleteId(params.row.id)}
+            sx={{
+              color: "#b91c1c",
+              "&:hover": { bgcolor: "#fee2e2" },
+            }}
+          >
+            <DeleteOutlineIcon />
           </IconButton>
-        </>
+        </Box>
       ),
     },
   ];
@@ -138,47 +160,117 @@ const ProductList = () => {
   return (
     <Box>
       {/* HEADER */}
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={2}
-      >
-        <Typography variant="h5">Products</Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h5" fontWeight={700}>
+          Products
+        </Typography>
 
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => navigate("/admin/products/create")}
+          sx={{
+            bgcolor: "#111",
+            "&:hover": { bgcolor: "#000" },
+          }}
         >
           Add Product
         </Button>
       </Box>
 
       {/* TABLE */}
-      {loading ? (
-        <CircularProgress />
-      ) : (
-        <Box sx={{ height: 520 }}>
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 3,
+          border: "1px solid #e5e7eb",
+          overflow: "hidden",
+        }}
+      >
+        {loading ? (
+          <Box p={3}>
+            <CircularProgress />
+          </Box>
+        ) : (
           <DataGrid
             rows={rows}
             columns={columns}
-            pageSize={5}
-            rowsPerPageOptions={[5, 10]}
+            pageSizeOptions={[5, 10, 15, 20, 50]}
+            paginationModel={{ pageSize }}
+            onPaginationModelChange={(model) => setPageSize(model.pageSize)}
             disableRowSelectionOnClick
+            sx={{
+              border: 0,
+              "& .MuiDataGrid-columnHeaders": {
+                bgcolor: "#f9fafb",
+                fontWeight: 600,
+              },
+              "& .MuiDataGrid-row:hover": {
+                bgcolor: "#f9fafb",
+              },
+              "& .MuiDataGrid-cell": {
+                borderBottom: "1px solid #f1f1f1",
+              },
+              "& .MuiDataGrid-footerContainer": {
+                borderTop: "1px solid #eee",
+              },
+            }}
           />
-        </Box>
-      )}
+        )}
+      </Paper>
 
       {/* DELETE CONFIRM MODAL */}
-      <Dialog open={!!deleteId} onClose={() => setDeleteId(null)}>
-        <DialogTitle>Delete Product</DialogTitle>
+      <Dialog
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            px: 1,
+            py: 1,
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 600 }}>
+          Delete Product
+        </DialogTitle>
+
         <DialogContent>
-          Are you sure you want to delete this product?
+          <Typography color="text.secondary">
+            Are you sure you want to delete this product? This action cannot be undone.
+          </Typography>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteId(null)}>Cancel</Button>
-          <Button color="error" onClick={handleDeleteConfirm}>
+
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          {/* Cancel Button */}
+          <Button
+            onClick={() => setDeleteId(null)}
+            variant="outlined"
+            sx={{
+              borderColor: "#d1d5db",
+              color: "#374151",
+              "&:hover": {
+                borderColor: "#000",
+                color: "#000",
+                backgroundColor: "#f9fafb",
+              },
+            }}
+          >
+            Cancel
+          </Button>
+
+          {/* Delete Button */}
+          <Button
+            onClick={handleDeleteConfirm}
+            variant="contained"
+            sx={{
+              bgcolor: "#111",
+              color: "#fff",
+              "&:hover": {
+                bgcolor: "#000",
+              },
+            }}
+          >
             Delete
           </Button>
         </DialogActions>

@@ -6,25 +6,24 @@ import {
   TextField,
   Typography,
   CircularProgress,
-  Link,
   Alert,
 } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login, saveSession } from "../../services/authService";
+import toast from "react-hot-toast";
+import { forgotPassword } from "../../services/authService";
 import Logo from "../../assets/images/Logo.png";
 
-const Login = () => {
+const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setError("Email and password are required");
+  const handleSubmit = async () => {
+    if (!email) {
+      setError("Email is required");
       return;
     }
 
@@ -32,28 +31,17 @@ const Login = () => {
       setLoading(true);
       setError("");
 
-      const { token, user } = await login(email, password);
+      const res = await forgotPassword(email);
 
-      // ❌ Block admin login here
-      if (user.role === "admin") {
-        setError("Admins must login from admin panel");
-        return;
-      }
+      toast.success(res.message);
 
-      // ✅ Save session
-      saveSession(token, user);
-
-      navigate("/");
+      // redirect to login
+      navigate("/login");
     } catch (err) {
       setError(err);
     } finally {
       setLoading(false);
     }
-  };
-
-  // Submit with Enter key
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") handleLogin();
   };
 
   return (
@@ -64,37 +52,30 @@ const Login = () => {
         alignItems: "center",
         justifyContent: "center",
         bgcolor: "#f3f4f6",
-        px: { xs: 2, sm: 3 },
+        px: 2,
       }}
     >
       <Card
-        elevation={0}
         sx={{
           width: "100%",
           maxWidth: 420,
           borderRadius: 4,
           border: "1px solid #e5e7eb",
-          backgroundColor: "#ffffff",
         }}
       >
-        <CardContent sx={{ p: { xs: 3, sm: 5 } }}>
+        <CardContent sx={{ p: 5 }}>
           {/* Logo */}
           <Box display="flex" justifyContent="center" mb={2}>
-            <img
-              src={Logo}
-              alt="Minimart Logo"
-              style={{ width: 60, maxWidth: "100%" }}
-            />
+            <img src={Logo} alt="Logo" style={{ width: 60 }} />
           </Box>
 
-          {/* Title */}
           <Typography
             variant="h5"
             fontWeight={700}
             textAlign="center"
             gutterBottom
           >
-            Welcome Back
+            Forgot Password
           </Typography>
 
           <Typography
@@ -103,81 +84,55 @@ const Login = () => {
             textAlign="center"
             mb={3}
           >
-            Login to continue shopping
+            Enter your email to receive a reset link
           </Typography>
 
-          {/* Error */}
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
               {error}
             </Alert>
           )}
 
-          {/* Email */}
           <TextField
             fullWidth
             label="Email Address"
-            type="email"
             margin="normal"
             value={email}
             disabled={loading}
             onChange={(e) => setEmail(e.target.value)}
-            onKeyDown={handleKeyPress}
           />
 
-          {/* Password */}
-          <TextField
-            fullWidth
-            label="Password"
-            type="password"
-            margin="normal"
-            value={password}
-            disabled={loading}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={handleKeyPress}
-          />
-
-          {/* Login Button */}
           <Button
             fullWidth
             variant="contained"
             size="large"
-            onClick={handleLogin}
-            disabled={!email || !password || loading}
+            onClick={handleSubmit}
+            disabled={!email || loading}
             sx={{
               mt: 3,
               py: 1.4,
               borderRadius: 50,
-              fontWeight: 600,
-              textTransform: "none",
               bgcolor: "#111",
+              textTransform: "none",
               "&:hover": { bgcolor: "#000" },
             }}
           >
             {loading ? (
               <CircularProgress size={22} sx={{ color: "#fff" }} />
             ) : (
-              "Login"
+              "Send Reset Link"
             )}
           </Button>
 
-          {/* Links */}
           <Box textAlign="center" mt={3}>
-            <Typography variant="body2">
-              Don’t have an account?{" "}
-              <Link component="button" onClick={() => navigate("/register")}>
-                Sign up
-              </Link>
-            </Typography>
-
-            <Link
-              component="button"
-              variant="body2"
-              // sx={{ display: "block", mt: 1 }}
-              onClick={() => navigate("/forgot-password")}
-            >
-              Forgot password?
-            </Link>
+            <Button sx={{
+              p: 1.4,
+              borderRadius: 50,
+              bgcolor: "#111",
+              textTransform: "none",
+              "&:hover": { bgcolor: "#000" },
+              color: "#fff"
+            }} onClick={() => navigate("/login")}>Back to Login</Button>
           </Box>
         </CardContent>
       </Card>
@@ -185,4 +140,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;
